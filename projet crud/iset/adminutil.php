@@ -57,22 +57,23 @@ if (!$con) {
     die("Error connecting to the database: " . mysqli_connect_error());
 }
 
-if (isset($_GET['action']) && $_GET['action'] === 'delete') {
-    deleteRecord($con, $_GET["nom"], $_GET["prenom"], $_GET["email"]);
-    header("Location: adminutil.php");
-    exit;
-}
+$action = isset($_GET['action']) ? $_GET['action'] : (isset($_POST['action']) ? $_POST['action'] : '');
 
-if (isset($_POST['action']) && $_POST['action'] === 'update') {
-    updateRecord($con, $_POST["nom"], $_POST["prenom"], $_POST["email"], $_POST["password"], $_POST["phone"]);
-    header("Location: adminutil.php");
-    exit;
-}
-
-if (isset($_POST['action']) && $_POST['action'] === 'add') {
-    insertRecord($con, $_POST["nom"], $_POST["prenom"], $_POST["email"], $_POST["password"], $_POST["phone"]);
-    header("Location: adminutil.php");
-    exit;
+switch ($action) {
+    case 'delete':
+        deleteRecord($con, $_GET["nom"], $_GET["prenom"], $_GET["email"]);
+        header("Location: adminutil.php");
+        exit;
+    case 'update':
+        updateRecord($con, $_POST["nom"], $_POST["prenom"], $_POST["email"], $_POST["password"], $_POST["phone"]);
+        header("Location: adminutil.php");
+        exit;
+    case 'add':
+        insertRecord($con, $_POST["nom"], $_POST["prenom"], $_POST["email"], $_POST["password"], $_POST["phone"]);
+        header("Location: adminutil.php");
+        exit;
+    default:
+        break;
 }
 ?>
 
@@ -84,67 +85,70 @@ if (isset($_POST['action']) && $_POST['action'] === 'add') {
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
         }
 
         form {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
+            max-width: 600px;
             margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
         }
 
         form div {
             margin-bottom: 15px;
+            overflow: hidden;
         }
 
         label {
             display: block;
-            margin-bottom: 5px;
             font-weight: bold;
+            margin-bottom: 5px;
         }
 
         input[type="text"],
         input[type="email"],
-        input[type="password"],
-        input[type="reset"],
-        input[type="submit"] {
-            width: calc(100% - 10px);
-            padding: 10px;
-            border-radius: 5px;
+        input[type="password"] {
+            width: calc(100% - 12px);
+            padding: 8px;
+            border-radius: 3px;
             border: 1px solid #ccc;
-            box-sizing: border-box;
-            margin-bottom: 10px;
         }
 
-        input[type="reset"],
-        input[type="submit"] {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
+        button {
+            padding: 10px 20px;
+            border-radius: 3px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            background-color: #007bff;
+            color: white;
+            border: none;
         }
 
-        input[type="reset"]:hover,
-        input[type="submit"]:hover {
-            background-color: #0056b3;
+        button[type="reset"] {
+            background-color: #dc3545;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 30px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #ddd;
         }
 
         th,
         td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            padding: 10px;
             text-align: left;
         }
 
@@ -152,17 +156,26 @@ if (isset($_POST['action']) && $_POST['action'] === 'add') {
             background-color: #f2f2f2;
         }
 
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
+        td a {
+            margin-right: 10px;
+            text-decoration: none;
+            color: #007bff;
         }
 
-        tr:hover {
-            background-color: #f1f1f1;
+        td a:hover {
+            text-decoration: underline;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #ccc;
+            margin-top: 40px;
         }
     </style>
 </head>
 
 <body>
+    <h1>User Management</h1>
     <form action="" method="POST">
         <div>
             <label for="nom">Nom:</label>
@@ -196,24 +209,22 @@ if (isset($_POST['action']) && $_POST['action'] === 'add') {
         </div>
     </form>
 
-    <br>
-    <br>
     <hr>
-    <br>
-    <br>
 
-    <table border="1">
-        <tr>
-            <th>NOM</th>
-            <th>PRENOM</th>
-            <th>EMAIL</th>
-            <th>PASSWORD</th>
-            <th>PHONE</th>
-            <th>ACTIONS</th>
-        </tr>
-        <?php
-        displayRecords($con);
-        ?>
+    <table>
+        <thead>
+            <tr>
+                <th>NOM</th>
+                <th>PRENOM</th>
+                <th>EMAIL</th>
+                <th>PASSWORD</th>
+                <th>PHONE</th>
+                <th>ACTIONS</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php displayRecords($con); ?>
+        </tbody>
     </table>
 
     <script>
@@ -225,7 +236,6 @@ if (isset($_POST['action']) && $_POST['action'] === 'add') {
             document.querySelector("input[name='phone']").value = phone;
         }
     </script>
-
 </body>
 
 </html>
